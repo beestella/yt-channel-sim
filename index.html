@@ -419,7 +419,7 @@ tr.sum .rb i{background:var(--brand)}
       ? {cap:'월 유튜브 운영매출 (세전)',big:won(mon),brand:true,extra:stackHtml,
          sub:months+'개월 누적 '+won(total)}
       : ym>0
-      ? {cap:'월 유튜브 운영매출 (세전)',big:won(0),extra:pot+stackHtml,
+      ? {cap:'승인 후 월 유튜브 운영매출 (세전)',big:won(mon),brand:true,extra:stackHtml,
          sub:ym+'개월째 승인 → '+(ym+1)+'개월째부터 발생 · '+months+'개월 누적 '+won(total)}
       : {cap:'월 유튜브 운영매출 (세전)',big:won(0),extra:pot+stackHtml,
          sub:'쇼츠 페이스가 90일 '+man(3*sv)+'회에서 멈춰 이 경로로는 계속 0원이에요'};
@@ -458,11 +458,17 @@ tr.sum .rb i{background:var(--brand)}
          sub:'둘 중 하나만 채워도 90일 1,000만 회를 넘겨요'}
       : {cap:'수익화 조건 여유',big:(roll90/YPP*100).toFixed(0)+'%<span class="badge ok">충족</span>',
          sub:'필요 대비 '+(roll90/YPP).toFixed(2)+'배 · 편당 '+man(needPer)+'회까지 내려가도 유지돼요'};
-    const T_cum={cap:months+'개월 누적 운영매출',big:won(total),sub:'월 '+won(mon)+' × '+earnMonths+'개월'};
+    const pl1=lV*lR/1000, ps1=sV*sR/1000;
+    const T_per={cap:'1편당 운영매출',big:'롱폼 '+won(pl1),
+      extra:'<div class="need-rows">'
+        +'<div><span>쇼츠 1편당</span><b class="tn">'+won(ps1)+'</b></div>'
+        +'<div><span>롱폼 1편 = 쇼츠</span><b class="tn">'+(ps1>0?(pl1/ps1).toFixed(1)+'편':'-')+'</b></div>'
+        +'</div>',
+      sub:'1편 추가로 늘어나는 월 운영매출이에요'};
     let tiles;
     if(mode==='rev') tiles=[T_need,T_goalApp,T_revApp];
     else if(mode==='ypp') tiles=[T_ypp,T_pace,T_rev];
-    else tiles=[T_rev, ypped?T_cum:T_ypp, ypped?T_goal:T_goalApp];
+    else tiles=[T_rev, ypped?T_per:T_ypp, ypped?T_goal:T_goalApp];
     $('tiles').innerHTML=tiles.map(x=>`<div class="tile"><div class="cap">${x.cap}</div><div class="big tn${x.brand?' brand':''}">${x.big}</div>${x.extra||''}<div class="sub">${x.sub||''}</div></div>`).join('');
 
     // 레버

@@ -45,7 +45,13 @@ h2{font-size:20px;font-weight:700;line-height:1.35;letter-spacing:-0.015em;margi
 
 .stdrow{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
 .yppn,.ypph{display:inline!important;margin:0!important;font-size:inherit;color:inherit}
-#srcCard[hidden]{display:none!important}
+#srcCard[hidden],#dataCard[hidden]{display:none!important}
+details.card > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;line-height:1.35;letter-spacing:-0.015em;color:var(--text)}
+details.card > summary::-webkit-details-marker{display:none}
+details.card > summary::after{content:"";flex:none;margin-left:auto;width:9px;height:9px;border-right:2px solid var(--text-3);border-bottom:2px solid var(--text-3);transform:translateY(-3px) rotate(45deg);transition:transform .15s}
+details.card[open] > summary::after{transform:translateY(2px) rotate(-135deg)}
+details.card[open] > summary{margin-bottom:18px}
+details.card > summary:focus-visible{outline:2px solid var(--brand);outline-offset:4px;border-radius:8px}
 .pot{margin-top:10px}
 .need-rows{margin-top:10px;display:grid;gap:6px}
 .need-rows > div{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px}
@@ -345,21 +351,21 @@ tr.sum .rb i{background:var(--brand)}
   </div>
 </div>
 
-<div class="card">
-  <h2>자사 쇼츠 데이터 분석 · 2025년 7월</h2>
+<details class="card" id="dataCard" hidden>
+  <summary>자사 쇼츠 데이터 분석</summary>
   <div class="tbl">
   <table>
     <thead><tr><th>채널 (비공개)</th><th class="r">조회수</th><th class="r">수익</th><th style="padding-left:16px">RPM (원/1,000회)</th></tr></thead>
     <tbody id="measured"></tbody>
   </table>
   </div>
-</div>
+</details>
 
-<div class="card">
-  <h2>참고 · 조회 100만 회당 운영매출</h2>
+<details class="card">
+  <summary>참고 · 조회 100만 회당 운영매출</summary>
   <div class="cmp"><span class="k">롱폼</span><div class="track"><i style="width:100%"></i></div><div class="v tn">약 125만 원<small>RPM 1,250원 · 외부 자료</small></div></div>
   <div class="cmp"><span class="k">쇼츠</span><div class="track"><i style="width:12%"></i></div><div class="v tn">약 15만 원<small>RPM 149원 · 자사 데이터</small></div></div>
-</div>
+</details>
 
 <div class="card" id="srcCard" hidden>
   <h2>근거</h2>

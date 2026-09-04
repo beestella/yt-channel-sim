@@ -127,6 +127,7 @@ tr.sum .rb i{background:var(--brand)}
 .lv.top .bar i{background:var(--brand)}
 .lv .v{text-align:right;font-weight:700;font-size:15px}
 .per{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.per[hidden]{display:none}
 .per > div{background:var(--bg-3);border-radius:var(--r-m);padding:12px 14px}
 .per .pv{font-size:18px;font-weight:700;margin-top:2px}
 @media (max-width:760px){.lv{grid-template-columns:1fr 90px}.lv .bar{display:none}.per{grid-template-columns:1fr}}
@@ -394,11 +395,11 @@ tr.sum .rb i{background:var(--brand)}
 
     // 월별
     const ym=yppMonth(sv); // 0=이미, -1=미달, n=달성 월
-    let rows='', total=0, earnMonths=0;
+    let rows='', total=0;
     for(let m=1;m<=months;m++){
       const roll=Math.min(m,3)*sv;
       const earning = ym===0 || (ym>0 && m>ym);
-      const rev = earning?mon:0; total+=rev; if(earning) earnMonths++;
+      const rev = earning?mon:0; total+=rev;
       const st = ym===0 ? '<span class="pill ok">승인</span>' : ym<0 ? '<span class="pill no">불가</span>' : m===ym ? '<span class="pill ok">달성</span>' : m>ym ? '<span class="pill ok">승인</span>' : '<span class="pill no">전</span>';
       rows+=`<tr><td>${m}개월</td><td>${cnt(lv)}</td><td>${cnt(sv)}</td><td>${cnt(roll)}</td><td>${st}</td><td class="${earning?'':'dim'}">${won(rev)}</td></tr>`;
     }
@@ -422,7 +423,7 @@ tr.sum .rb i{background:var(--brand)}
       ? {cap:'승인 후 월 유튜브 운영매출 (세전)',big:won(mon),brand:true,extra:stackHtml,
          sub:ym+'개월째 승인 → '+(ym+1)+'개월째부터 발생 · '+months+'개월 누적 '+won(total)}
       : {cap:'월 유튜브 운영매출 (세전)',big:won(0),extra:pot+stackHtml,
-         sub:'쇼츠 페이스가 90일 '+man(3*sv)+'회에서 멈춰 이 경로로는 계속 0원이에요'};
+         sub:'쇼츠 페이스가 90일 '+man(3*sv)+'회에서 멈춰 '+months+'개월 내내 0원이에요'};
     const T_ypp= ym===0 ? {cap:'수익화 상태',big:'승인 완료',sub:'첫 달부터 매출로 계산해요'}
       : ym>0 ? {cap:'수익화 시점 · 쇼츠 90일 1,000만',big:ym+'개월째<span class="badge ok">충족</span>',sub:'매출은 '+(ym+1)+'개월째부터 · 지금 페이스 하루 '+man(perDay)+'회'}
       : {cap:'수익화 시점 · 쇼츠 90일 1,000만',big:'승인 불가<span class="badge no">90일 최대 '+man(3*sv)+'회</span>',sub:sv===0?'쇼츠를 올리지 않으면 이 경로로는 승인이 안 나요':'90일 롤링은 3개월치가 최대라 월 '+man(sv)+'회 페이스면 '+man(3*sv)+'회에서 안 늘어요 · '+man(YPP-3*sv)+'회 부족'};
@@ -430,24 +431,26 @@ tr.sum .rb i{background:var(--brand)}
     const T_goal={
       cap: months===1?'월 매출 목표 대비':months+'개월 누적 목표 대비',
       big:(cgap>0?'−':'+')+won(Math.abs(cgap)),
-      sub:'목표 '+won(goal*months)+' vs 매출 '+won(total)+(ym===0?'':' · 승인된다면 월 '+(gap>0?'−':'+')+won(Math.abs(gap)))};
+      sub:'목표 '+won(goal*months)+' vs 매출 '+won(total)};
     const k=mon>0?goal/mon:0;
     const needRows=mon>0?'<div class="need-rows">'+
       `<div><span>롱폼 편당</span><b class="tn">${man(lV)} <i>→</i> ${man(lV*k)}회</b></div>`+
       `<div><span>쇼츠 편당</span><b class="tn">${man(sV)} <i>→</i> ${man(sV*k)}회</b></div>`+'</div>':'';
-    const gapM=gap*months;
+    const earnM = ym>0 ? Math.max(0,months-ym) : months;
+    const gapM = gap*earnM;
     const T_revApp = ym===0 ? T_rev
       : {cap:'승인 후 월 유튜브 운영매출 (세전)',big:won(mon),brand:true,extra:stackHtml,
          sub:'아래 역산은 이 금액을 기준으로 해요 · 승인 전 실제 매출은 0원'};
     const T_goalApp = ym===0 ? T_goal
-      : {cap:months===1?'승인 후 월 매출 목표 대비':'승인 후 '+months+'개월 누적 목표 대비',
+      : earnM===0
+      ? {cap:'승인 후 목표 대비',big:'아직 발생 전',
+         sub:ym+'개월째 승인이라 이 기간에는 매출이 없어요'}
+      : {cap:(ym<0?'승인된다면 ':'승인 후 ')+(earnM===1?'월 매출 목표 대비':earnM+'개월 누적 목표 대비'),
          big:(gapM>0?'−':'+')+won(Math.abs(gapM)),
-         sub:'목표 '+won(goal*months)+' vs 승인 후 매출 '+won(mon*months)};
+         sub:'목표 '+won(goal*earnM)+' vs '+(ym<0?'승인 시':'승인 후')+' 매출 '+won(mon*earnM)};
     const T_need={cap:'목표 달성에 필요한 편당 조회',big:mon>0?'지금의 <span class="brand">'+k.toFixed(2)+'배</span>':'-',extra:needRows,sub:'편수는 지금 그대로 둘 때'};
     const roll90=3*sv, needPer=sC>0?YPP/3/sC:0, needCnt=sV>0?Math.ceil(YPP/3/sV):0;
-    const T_pace = ym===0
-      ? {cap:'수익화 상태',big:'승인 완료',sub:'쇼츠 조건 판정은 더 필요하지 않아요'}
-      : roll90===0
+    const T_pace = roll90===0
       ? {cap:'수익화까지 남은 갭',big:'-',sub:'쇼츠 발행량을 입력하면 계산해요'}
       : ym<0
       ? {cap:'수익화까지 남은 갭',big:'지금의 <span class="brand">'+(YPP/roll90).toFixed(2)+'배</span>',
@@ -501,6 +504,7 @@ tr.sum .rb i{background:var(--brand)}
     $('ygrid').innerHTML=g+'</tbody>';
     $('yneed').textContent='쇼츠 경로 조건은 90일 1,000만 회 = 월 '+man(YPP/3)+'회 = 하루 '+man(needDay)+'회예요.';
     document.querySelectorAll('[data-revcap]').forEach(el=>{ el.textContent = ym===0?'월 운영매출':'승인 시 월 운영매출'; });
+    document.querySelectorAll('.per').forEach(el=>{ el.hidden = ypped; });
   }
 
   function setMode(m){ if(m==='ypp'&&ypped) m='fwd'; mode=m; document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===m?'true':'false')); document.querySelectorAll('.mode').forEach(el=>el.classList.toggle('on',el.id==='m-'+m)); }

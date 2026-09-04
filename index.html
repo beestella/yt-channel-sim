@@ -384,9 +384,10 @@ tr.sum .rb i{background:var(--brand)}
   function paint(k){const r=$(k);const p=(r.value-r.min)/(r.max-r.min)*100;r.style.setProperty('--p',Math.max(0,Math.min(100,p))+'%');}
   function set(k,v){$(k).value=v;$(k+'N').value=fmt(v);paint(k);}
 
-  // 쇼츠 경로 달성 월. 0=이미 승인, n=n개월째 충족
-  // -1 = 90일 롤링 상한(3*sv)이 임계에 못 닿아 이 페이스로는 영구 미달
-  function yppMonth(sv){ if(ypped) return 0; for(let m=1;m<=3;m++){ if(m*sv>=YPP) return m; } return -1; }
+  // 쇼츠 경로 임계 도달일. 0=이미 승인, n=n일째 도달, -1=영구 미달
+  // 요건은 90일 '안에' 1,000만이므로 월 경계가 아니라 등속 일 페이스로 도달일을 구한다.
+  // 90일 창의 상한이 3개월치(3*sv)이므로 그 상한이 임계 미만이면 시간이 지나도 못 넘는다.
+  function yppDay(sv){ if(ypped) return 0; if(sv<=0 || 3*sv<YPP) return -1; return Math.min(90, Math.ceil(YPP*30/sv)); }
 
   function calc(){
     const lC=get('lCnt'),lV=get('lView'),lR=get('lRpm'),sC=get('sCnt'),sV=get('sView'),sR=get('sRpm'),goal=get('goal');
@@ -394,7 +395,8 @@ tr.sum .rb i{background:var(--brand)}
     $('oLong').textContent=won(lr); $('oShort').textContent=won(sr);
 
     // 월별
-    const ym=yppMonth(sv); // 0=이미, -1=미달, n=달성 월
+    const yd=yppDay(sv);                              // 0=이미 승인, n=n일째 도달, -1=영구 미달
+    const ym=yd<=0?yd:Math.ceil(yd/30);               // 매출은 월 단위라 도달일이 속한 달
     let rows='', total=0;
     for(let m=1;m<=months;m++){
       const roll=Math.min(m,3)*sv;
@@ -425,8 +427,8 @@ tr.sum .rb i{background:var(--brand)}
       : {cap:'월 유튜브 운영매출 (세전)',big:won(0),extra:pot+stackHtml,
          sub:'쇼츠 페이스가 90일 '+man(3*sv)+'회에서 멈춰 '+months+'개월 내내 0원이에요'};
     const T_ypp= ym===0 ? {cap:'수익화 상태',big:'승인 완료',sub:'첫 달부터 매출로 계산해요'}
-      : ym>0 ? {cap:'수익화 시점 · 쇼츠 90일 1,000만',big:ym+'개월째<span class="badge ok">충족</span>',sub:'매출은 '+(ym+1)+'개월째부터 · 지금 페이스 하루 '+man(perDay)+'회'}
-      : {cap:'수익화 시점 · 쇼츠 90일 1,000만',big:'승인 불가<span class="badge no">90일 최대 '+man(3*sv)+'회</span>',sub:sv===0?'쇼츠를 올리지 않으면 이 경로로는 승인이 안 나요':'90일 롤링은 3개월치가 최대라 월 '+man(sv)+'회 페이스면 '+man(3*sv)+'회에서 안 늘어요 · '+man(YPP-3*sv)+'회 부족'};
+      : ym>0 ? {cap:'수익화 시점 · 쇼츠 90일 1,000만',big:yd+'일째<span class="badge ok">충족</span>',sub:'하루 '+man(perDay)+'회 페이스면 '+yd+'일 만에 1,000만 회를 넘겨요 · 매출은 '+(ym+1)+'개월째부터'}
+      : {cap:'수익화 시점 · 쇼츠 90일 1,000만',big:'승인 불가<span class="badge no">90일 최대 '+man(3*sv)+'회</span>',sub:sv===0?'쇼츠를 올리지 않으면 이 경로로는 승인이 안 나요':'하루 '+man(perDay)+'회 페이스로는 90일에 '+man(3*sv)+'회 · '+man(YPP-3*sv)+'회 부족'};
     const cgap=goal*months-total;
     const T_goal={
       cap: months===1?'월 매출 목표 대비':months+'개월 누적 목표 대비',

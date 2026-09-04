@@ -45,6 +45,7 @@ h2{font-size:20px;font-weight:700;line-height:1.35;letter-spacing:-0.015em;margi
 
 .stdrow{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
 .yppn,.ypph{display:inline!important;margin:0!important;font-size:inherit;color:inherit}
+#srcCard[hidden]{display:none!important}
 .pot{margin-top:10px}
 .need-rows{margin-top:10px;display:grid;gap:6px}
 .need-rows > div{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px}
@@ -360,7 +361,7 @@ tr.sum .rb i{background:var(--brand)}
   <div class="cmp"><span class="k">쇼츠</span><div class="track"><i style="width:12%"></i></div><div class="v tn">약 15만 원<small>RPM 149원 · 자사 데이터</small></div></div>
 </div>
 
-<div class="card">
+<div class="card" id="srcCard" hidden>
   <h2>근거</h2>
   <ul class="src">
     <li><span class="t">수익화 조건: 구독자 1,000명 + 90일 쇼츠 조회 1,000만 회 (또는 12개월 시청 4,000시간)</span><span class="m"><a href="https://support.google.com/youtube/answer/72851?hl=ko">YouTube 고객센터</a></span></li>
